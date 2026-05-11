@@ -1,0 +1,10 @@
+{
+  "name": "core-engine",
+  "version": "1.1.0",
+  "description": "Core Three.js engine with post-processing and advanced lighting",
+  "type": "module",
+  "main": "Engine.js",
+  "dependencies": {
+    "three": "^0.170.0"
+  }
+}
