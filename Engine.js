@@ -54,10 +54,45 @@ export class Engine {
         this.eventHooks = {};
 
         // Handle Window Resize
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
+        this.boundOnWindowResize = this.onWindowResize.bind(this);
+        window.addEventListener('resize', this.boundOnWindowResize, false);
 
         // For animation timing
         this.clock = new THREE.Clock();
+    }
+
+    /**
+     * Cleans up engine resources to prevent memory leaks.
+     */
+    dispose() {
+        window.removeEventListener('resize', this.boundOnWindowResize);
+
+        this.scene.traverse((object) => {
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(mat => mat.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
+        });
+
+        if (this.composer) {
+            this.composer.passes.forEach(pass => {
+                if (pass.dispose) pass.dispose();
+            });
+        }
+
+        this.renderer.dispose();
+        
+        // Decouple event listeners
+        this.eventHooks = {};
+        
+        // Remove from DOM
+        if (this.renderer.domElement && this.renderer.domElement.parentNode) {
+            this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+        }
     }
 
     /**
